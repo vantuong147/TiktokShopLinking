@@ -1,0 +1,2 @@
+CRR usage first step: http://localhost:3000/tts/connector?app_key=6e2skahs13mp0&code=ROW_hQrLrAAAAAAQDQgfvxvGYBdjqVsyfnbTuUwBWEgMR545O6KjRZDmjTOhBE-Ikh3PJ9EDIEL5uVwsMct6W5xANZQqVaf_ZlSN4JoRpvjlZR6Kl5rpreXqtUsEATrWmq7yu8W_lHJD9Qx1KEMlUi0mIugLsVik2yGp&locale=vi-VN&shop_region=VN
+API get_app_secret: http://localhost:8000/get_secret?request=get_app_secret&app_key=my_app_key
