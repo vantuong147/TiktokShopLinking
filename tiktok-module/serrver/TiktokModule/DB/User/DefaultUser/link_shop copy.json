@@ -1,0 +1,25 @@
+[
+  {
+    "friendly_name":"Shop 1",
+    "shop_id": "7495969606976375116",
+    "shop_name": "SANDBOX7428843161836701445",
+    "code": "VNLCYDW7TA",
+    "cipher": "ROW_zk8p8wAAAAD_WQvzUUYdkTUuUF5OoWGp",
+    "token_data":{
+      "access_token": "ROW_XjAEXAAAAABiIkkM7PnIbISCgSwhNCG653iSsr37VhM59Ti34n6RnHAFGpQCMzbMUgVuYwC-mToQAgCdMrUG3nBcguL8sWFrzt8nZhpRVjNp_s4W9kCu-pUbMNWuNLNg6Byxwbx84W7e9au8oVEuP7E5NMR0uK_nYhwlrTv5XcKyp-h_euXZSA",
+      "access_token_expire_in": 1731579864,
+      "refresh_token": "ROW_E18VogAAAABSAqBdhXI34qfuSk91OArH5d9Qq5zubjoF12vrKznvMrIiJDiOtPeAOsbRRGOs9cY",
+      "refresh_token_expire_in": 1731579864
+    },
+    "product_data":
+    {
+      "total": 3,
+      "live": 3,
+      "pending": 0,
+      "rejected": 0,
+      "frozen": 0,
+      "lastest_sync": 1731579864
+    }
+  }
+
+]
