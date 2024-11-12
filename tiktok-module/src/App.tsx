@@ -3,7 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { Box, Container } from '@chakra-ui/react';
 import Header from './components/Header';
 import Dashboard from './pages/Dashboard';
-import Store from './pages/Store2';
+import Store from './pages/Store';
 import Order from './pages/Order';
 import Product from './pages/Product';
 import UserAccountManager from './pages/UserAccountManager';
@@ -20,7 +20,7 @@ const App: React.FC = () => {
         <Container maxW="95%"  pt={4}>
           <Routes>
             <Route path="/" element={<Dashboard />} />
-            <Route path="/conector" element={<Connector />} />
+            <Route path="/connector" element={<Connector />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/store" element={<Store />} />
             <Route path="/order" element={<Order />} />

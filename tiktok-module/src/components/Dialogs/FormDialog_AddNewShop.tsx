@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { Box, Button, FormControl, FormLabel, Input, Modal, ModalOverlay, ModalContent, ModalHeader, ModalFooter, ModalBody, ModalCloseButton } from '@chakra-ui/react';
 
-interface FormDialog_AddNewShopProps {
+interface FormDialog_AddShopProps {
   isOpen: boolean;
   onClose: () => void;
   title: string;
-  onConfirm: () => void;
+  onConfirm: (newFriendlyName: string) => void;
 }
 
-const FormDialog_AddNewShop: React.FC<FormDialog_AddNewShopProps> = ({ isOpen, onClose, title, onConfirm }) => {
+const FormDialog_AddShop: React.FC<FormDialog_AddShopProps> = ({ isOpen, onClose, title, onConfirm }) => {
   const [shopName, setShopName] = useState<string>('');
 
   const handleShopNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -16,9 +16,8 @@ const FormDialog_AddNewShop: React.FC<FormDialog_AddNewShopProps> = ({ isOpen, o
   };
 
   const handleSubmit = () => {
-    if (shopName.trim()) {
-      onConfirm(); // Call onConfirm if form is valid
-    }
+    console.log("handle submit: ", shopName);
+    onConfirm(shopName);
   };
 
   return (
@@ -39,7 +38,7 @@ const FormDialog_AddNewShop: React.FC<FormDialog_AddNewShopProps> = ({ isOpen, o
         </ModalBody>
         <ModalFooter>
           <Button colorScheme="blue" mr={3} onClick={handleSubmit}>
-            Add Shop
+            Add new shop
           </Button>
           <Button variant="ghost" onClick={onClose}>
             Cancel
@@ -50,4 +49,4 @@ const FormDialog_AddNewShop: React.FC<FormDialog_AddNewShopProps> = ({ isOpen, o
   );
 };
 
-export default FormDialog_AddNewShop;
+export default FormDialog_AddShop;

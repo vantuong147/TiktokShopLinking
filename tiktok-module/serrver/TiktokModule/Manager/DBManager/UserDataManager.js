@@ -24,6 +24,18 @@ const getLinkShopData = (req, res) => {
     });
 };
 
+function generateRandomString(length) {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const charactersLength = characters.length;
+    let result = '';
+    
+    for (let i = 0; i < length; i++) {
+      const randomIndex = Math.floor(Math.random() * charactersLength);
+      result += characters.charAt(randomIndex);
+    }
+  
+    return result;
+  }
 // Function to add a new shop
 const addNewShop = (req, res) => {
     const { shop_name } = req.body;
@@ -45,8 +57,8 @@ const addNewShop = (req, res) => {
 
         // Add the new shop with empty data
         const emptyShop = {
-            "friendly_name": "Undefined",
-            "shop_id": "",
+            "friendly_name": shop_name,
+            "shop_id": "Undefined_"+generateRandomString(10),
             "shop_name": "",
             "code": "",
             "cipher": "",
@@ -76,8 +88,8 @@ const addNewShop = (req, res) => {
         });
     });
 };
-const updateShopData = async (shop_name, new_data) => {
-    console.log("update shopdata", { shop_name, new_data });
+const updateShopData = async (shop_id, new_data) => {
+    console.log("update shopdata", { shop_name: shop_id, new_data });
     
     try {
         // Read the file as a Promise
@@ -90,19 +102,19 @@ const updateShopData = async (shop_name, new_data) => {
         }
         console.log(2);
         
-        const shopIndex = shopData.findIndex(shop => shop.shop_id === shop_name);
+        const shopIndex = shopData.findIndex(shop => shop.shop_id === shop_id);
         if (shopIndex === -1) {
             console.log("Shop not found");
             return { success: false, message: "Shopname not found", code: 1 };
         } else {
             console.log(3);
-            const shopIndex_byTiktokID = shopData.findIndex(shop => shop.data.data && (shop.data.data.shop_id === new_data.data.shop_id));
-            if (shopIndex_byTiktokID !== -1 && shopIndex_byTiktokID !== shopIndex) {
-                console.log("This tiktok shop added before!");
-                return { success: false, message: "This tiktok shop account authorized before!", code: 2 };
+            const shopIndex_new_shop_id = shopData.findIndex(shop=>shop.shop_id === new_data.shop_id);
+            if (shopIndex_new_shop_id !== shopIndex)
+            {
+                console.log("This shop already in DB");
+                return { success: false, message: "This shop already in DB", code: 2 };
             }
-            
-            shopData[shopIndex].data = new_data;
+            shopData[shopIndex] = new_data;
 
             // Write the updated data as a Promise
             await fs.promises.writeFile(linkShopFilePath, JSON.stringify(shopData, null, 2));
@@ -114,6 +126,30 @@ const updateShopData = async (shop_name, new_data) => {
     } catch (err) {
         console.error('Error reading/writing link_shop.json:', err);
         return { success: false, message: "Read/Write data error", code: 3 };
+    }
+};
+
+const getShopData = async (shop_id) => {
+    console.log("get shopdata", { shop_name: shop_id});
+    
+    try {
+        // Read the file as a Promise
+        const data = await fs.promises.readFile(linkShopFilePath, 'utf8');
+        
+        let shopData = [];
+        if (data) {
+            shopData = JSON.parse(data);
+        }
+        
+        const shopIndex = shopData.findIndex(shop => shop.shop_id === shop_id);
+        if (shopIndex === -1) {
+            console.log("Shop not found");
+            return null;
+        } else {
+           return shopData[shopIndex];
+        }
+    } catch (err) {
+       return null;
     }
 };
 
@@ -178,4 +214,4 @@ const deleteShop = (req, res) => {
     });
 };
 
-module.exports = {getLinkShopData, addNewShop, updateShopData, deleteShop, updateShopInformation}
+module.exports = {getShopData, getLinkShopData, addNewShop, updateShopData, deleteShop, updateShopInformation}

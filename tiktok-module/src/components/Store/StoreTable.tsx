@@ -64,8 +64,8 @@ const StoreTable: React.FC<StoreTableProps> = ({
                       <Text>Refresh Token Expire In: {formatTimestamp(store.token_data.refresh_token_expire_in)}</Text>
 
                       <Flex mt={4} justify="space-between">
-                        <Button colorScheme="green" size="sm" onClick={() => onRenewToken(store.shop_id)}>
-                          Gia hạn Token
+                        <Button colorScheme={store.shop_id.startsWith("Undefined") ? "red" : "green"} size="sm" onClick={() => onRenewToken(store.shop_id)}>
+                        {store.shop_id.startsWith("Undefined") ? "Authorize Shop" : "Extend Token"}
                         </Button>
                         <Button colorScheme="blue" size="sm" onClick={() => onSyncOrder(store.shop_id)}>
                           Sync Order

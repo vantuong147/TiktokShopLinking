@@ -1,26 +1,34 @@
 import React, { useEffect, useState } from 'react';
-import { Box, Heading, Text, Container, Center, Spinner } from '@chakra-ui/react';
+import { Box, Heading, Text, VStack, useToast } from '@chakra-ui/react';
+import { useLocation } from 'react-router-dom';
+import { useCookies } from 'react-cookie';
 
 const Connector: React.FC = () => {
+  const [cookies] = useCookies(['crr_authorize_shop_id']); // Sử dụng React Cookie
   const [status, setStatus] = useState<string[]>([]);
+  const toast = useToast();
+  const location = useLocation();
 
   useEffect(() => {
     const fetchData = async () => {
       // Lấy tham số từ URL
-      const urlParams = new URLSearchParams(window.location.search);
-      const app_key = urlParams.get('app_key');
-      const code = urlParams.get('code');
+      const urlParams = new URLSearchParams(location.search);
+      const app_key = urlParams.get('app_key') || '';
+      const code = urlParams.get('code') || '';
 
-      console.log("Received: " + app_key + " | " + code);
       appendStatus(`Received: app_key = ${app_key}, code = ${code}`);
+      console.log(`Received: app_key = ${app_key} | code = ${code}`);
 
+      const first_shop_id = cookies.crr_authorize_shop_id;
+      console.log("First shop id:", first_shop_id);
+      if (!first_shop_id) return;
       try {
         // Gửi yêu cầu lấy token
         const tokenParams = {
-          shop_name: getCookieValue('crrShopName'),
+          first_shop_id: first_shop_id || '',
           app_key: app_key,
-          auth_code: code, // Sử dụng code đã nhận
-          grant_type: 'authorized_code'
+          auth_code: code,
+          grant_type: 'authorized_code',
         };
 
         const url_get_token = 'http://localhost:8000/get_access_token';
@@ -29,65 +37,69 @@ const Connector: React.FC = () => {
         const tokenResponse = await fetch(url_get_token, {
           method: 'POST',
           headers: {
-            'Content-Type': 'application/json', // Đặt loại nội dung là JSON
+            'Content-Type': 'application/json',
           },
-          body: JSON.stringify(tokenParams) // Chuyển đổi đối tượng thành chuỗi JSON
+          body: JSON.stringify(tokenParams),
         });
 
         const tokenData = await tokenResponse.json();
-        console.log("token data", tokenData);
+        console.log('Token data:', tokenData);
+
         if (tokenData.success) {
-          alert("Success!");
+          toast({
+            title: 'Success',
+            description: 'Access token retrieved successfully!',
+            status: 'success',
+            duration: 3000,
+            isClosable: true,
+          });
         } else {
-          alert("Failed: " + tokenData.message);
+          toast({
+            title: 'Failed',
+            description: `Error: ${tokenData.message}`,
+            status: 'error',
+            duration: 3000,
+            isClosable: true,
+          });
         }
-      } catch (error) {
-        let err = error as Error;
-        console.error('Error:', err);
-        appendStatus(`Error: ${err.message}`);
+      } catch (error: any) {
+        console.error('Error:', error);
+        appendStatus(`Error: ${error.message}`);
+        toast({
+          title: 'Error',
+          description: error.message,
+          status: 'error',
+          duration: 3000,
+          isClosable: true,
+        });
       }
     };
 
     fetchData();
-  }, []);
+  }, [location.search, toast]);
 
   const appendStatus = (message: string) => {
-    setStatus(prevStatus => [...prevStatus, message]);
+    setStatus((prevStatus) => [...prevStatus, message]);
   };
 
   const getCookieValue = (name: string): string | null => {
-    const match = document.cookie.match(new RegExp('(^| )' + name + '=([^;]+)'));
+    const match = document.cookie.match(new RegExp(`(^| )${name}=([^;]+)`));
     return match ? match[2] : null;
   };
 
   return (
-    <Container maxW="100%" pt={4}>
-      <Box p={4} bg="white" rounded="lg" shadow="md">
-        {/* Header */}
-        <Heading as="h1" size="lg" mb={4} textAlign="center">
-          Connector Page
-        </Heading>
-
-        {/* Content */}
-        <Center>
-          <Box textAlign="center">
-            <Text fontSize="xl" mb={4}>
-              Connecting...
-            </Text>
-            <Spinner size="xl" />
-          </Box>
-        </Center>
-
-        {/* Displaying status messages */}
-        <Box mt={6}>
-          {status.map((msg, index) => (
-            <Text key={index} mb={2} fontSize="sm" color="gray.600">
-              {msg}
-            </Text>
-          ))}
-        </Box>
-      </Box>
-    </Container>
+    <Box>
+      <Heading as="h1" size="lg" mb={4}>
+        Connector Page
+      </Heading>
+      <VStack align="start" spacing={2}>
+        {status.map((msg, index) => (
+          <Text key={index} fontSize="md" color="gray.600">
+            {msg}
+          </Text>
+        ))}
+      </VStack>
+    </Box>
   );
 };
 

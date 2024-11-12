@@ -2,7 +2,12 @@ import React from 'react';
 import { Button, Stack, Flex, Spacer } from '@chakra-ui/react';
 import { AddIcon } from '@chakra-ui/icons';
 
-const StoreFilter: React.FC = () => {
+type StoreFilterProps = {
+  onAddNewShopClick: () => void;
+};
+
+
+const StoreFilter: React.FC<StoreFilterProps> = ({onAddNewShopClick}) => {
   return (
     <Flex mb={4}>
     <Stack direction="row" spacing={4}>
@@ -14,7 +19,7 @@ const StoreFilter: React.FC = () => {
       <Button colorScheme="gray">All</Button>
     </Stack>
     <Spacer />
-    <Button colorScheme="blue" leftIcon={<AddIcon />}>
+    <Button colorScheme="blue" leftIcon={<AddIcon />} onClick={()=>((onAddNewShopClick()))}>
       Add New Shop
     </Button>
     
