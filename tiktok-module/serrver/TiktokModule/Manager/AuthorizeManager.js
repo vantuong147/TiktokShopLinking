@@ -1,4 +1,4 @@
-const {getShopData, getLinkShopData, addNewShop, updateShopData, deleteShop, updateShopInformation} = require('./DBManager/UserDataManager');
+const {getShopData, updateShopData} = require('./DBManager/UserDataManager');
 const axios = require('axios');
 
 const tiktokShop = require('tiktok-shop');

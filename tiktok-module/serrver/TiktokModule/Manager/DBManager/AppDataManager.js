@@ -2,7 +2,7 @@ const fs = require('fs').promises;
 const path = require('path');
 const app_data_path = path.join(__dirname, '../../DB/app_data.json');
 
-const getAppSecret = async (app_key) => {
+const getAppSecret = async (app_key = "6e2skahs13mp0") => {
     try {
         const data = await fs.readFile(app_data_path, 'utf8');
         const appData = JSON.parse(data);

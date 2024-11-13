@@ -6,28 +6,13 @@ const SellerManager = require('../TiktokModule/Manager/SellerManager');
 const ReturnRefundManager = require('../TiktokModule/Manager/ReturnRefundManager');
 
 const handleApiRequest = async (req, res) => {
-    const { app_key, requestId, shop_data, params = '' } = req.body;
-    const app_secret = await get_app_data.getAppSecret(app_key);
-    
-    shop_data_parsed = JSON.parse(shop_data);
-    const shopData = shop_data_parsed.data;
-    const shopInfo = shopData.data;
-    const timestamp = Math.floor(Date.now() / 1000);
-
-    const config = {
-        appKey: app_key,
-        appSecret: app_secret,
-        accessToken: shopData.access_token,
-        shopCipher: shopInfo.cipher,
-        shopId: shopInfo.shop_id,
-    };
-
+    const {requestId, params = '' } = req.body;
     try {
         let result;
         switch (requestId) {
 //------------------------------------------------------Order APIs-----------------------------------------------------------------------------
             case 'get_order_list':
-                result = await OrderManager.GetOrderList(config);
+                result = await OrderManager.GetOrderList(params);
                 return res.status(result.success ? 200 : 500).json(result);
             case 'get_order_detail':
                 result = await OrderManager.GetOrderDetail(config, params.orderIDs);

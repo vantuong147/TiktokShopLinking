@@ -1,28 +1,17 @@
 const OrderParser = require('../Helper/Parser/OrderParser'); // Import OrderParser
 class OrderDAO {
-    constructor(response, isJson) {
-        if (!isJson)
-        {
-            console.log("CREATE FROM RESPONSE: " + JSON.stringify(response));
-            this.data = new OrderParser(response);
-        }
-
-        else
-            this.data = new OrderParser({sucess:true, data: {data:response}});
+    constructor(orderData) {
+        this.data = new OrderParser(orderData);
     }
 
 
     // Method to get the order ID
-    getOrderBasicDetails(index = 0) {
-        return this.data.getOrderBasicDetails(index);
+    getOrderBasicDetails() {
+        return this.data.getOrderBasicDetail();
     }
-    getCSVDetails(index = 0)
+    getCSVDetail()
     {
-        return this.data.getCSVDetails(index);
-    }
-    getCount()
-    {
-        return this.data.getCount();
+        return this.data.getCSVDetail();
     }
 
     // Method to get the items in the order

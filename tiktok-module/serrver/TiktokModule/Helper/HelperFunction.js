@@ -51,4 +51,22 @@ const apiRequest = async (config, url, method = 'post', body = {}) => {
 const timestamp = ()=> {
     return Math.floor(Date.now() / 1000);
 }
-module.exports = {timestamp, generateUrl, apiRequest };
+
+const generateConfig = (
+    app_key,
+    app_secret,
+    access_token,
+    cipher,
+    shop_id
+  ) => {
+    const config = {
+      appKey: app_key,
+      appSecret: app_secret,
+      accessToken: access_token,
+      shopCipher: cipher,
+      shopId: shop_id,
+    };
+    return config;
+  };
+
+module.exports = {timestamp, generateUrl, apiRequest, generateConfig };

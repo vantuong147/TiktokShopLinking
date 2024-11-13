@@ -17,7 +17,10 @@ const OrderAPI = {
             version: '202309'
         };
         const url = generateUrl(config, apiEndpoints.get_order_list, queryParams, true, {});
-        return apiRequest(config, url, 'post');
+        const result = await apiRequest(config, url, 'post');
+        if (result.success)
+            return result.data.data.orders;
+        return []
     },
 
     async getOrderDetail(config, timestamp, orderIDs) {

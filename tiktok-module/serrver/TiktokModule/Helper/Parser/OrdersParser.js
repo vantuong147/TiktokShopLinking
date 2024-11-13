@@ -1,13 +1,13 @@
 // parsers/OrderParser.js
 const ResponseParser = require('./ResponseParser');
 
-class OrderParser{
-    constructor(orderData) {
-        this.order = orderData;
+class OrdersParser extends ResponseParser {
+    constructor(response) {
+        super(response);
     }
     // Example: Get details of a specific order by ID
-    getOrderBasicDetail() {
-        const order = this.order;
+    getOrderBasicDetails(index = 0) {
+        const order = this.data.orders[index];
         return {
             id: order.id,
             status: order.status,
@@ -17,9 +17,9 @@ class OrderParser{
             line_items: order.line_items,
         };
     }
-    getCSVDetail()
+    getCSVDetails(index = 0)
     {
-        const order = this.order;
+        const order = this.data.orders[index];
         return {
             external_id:'NA',
             order_id: order.id,
@@ -44,18 +44,16 @@ class OrderParser{
             size: 'NA',
             color: 'NA',
             shirt_type: 'NA',
-            is_rush: null,
-            extra_design_1: 'NA',
-            mockup_extra_1: 'NA',
-            extra_design_2: 'NA',
-            mockup_extra_2: 'NA',
-            extra_design_3: 'NA',
-            mockup_extra_3: 'NA'
+            is_rush: null
         };
+    }
+    getCount()
+    {
+        return this.data.orders.length;
     }
     getAllItemsID(){
         const result = []
-        const line_items = this.order.line_items;
+        const line_items = this.data.orders[0].line_items;
         for (var i = 0; i< line_items.length; i++)
         {
             result.push(line_items[i].id);
@@ -64,4 +62,4 @@ class OrderParser{
     }
 }
 
-module.exports = OrderParser;
+module.exports = OrdersParser;

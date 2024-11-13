@@ -109,7 +109,7 @@ const updateShopData = async (shop_id, new_data) => {
         } else {
             console.log(3);
             const shopIndex_new_shop_id = shopData.findIndex(shop=>shop.shop_id === new_data.shop_id);
-            if (shopIndex_new_shop_id !== shopIndex)
+            if (shopIndex_new_shop_id !== -1 && shopIndex_new_shop_id !== shopIndex)
             {
                 console.log("This shop already in DB");
                 return { success: false, message: "This shop already in DB", code: 2 };
@@ -139,8 +139,7 @@ const getShopData = async (shop_id) => {
         let shopData = [];
         if (data) {
             shopData = JSON.parse(data);
-        }
-        
+        }        
         const shopIndex = shopData.findIndex(shop => shop.shop_id === shop_id);
         if (shopIndex === -1) {
             console.log("Shop not found");
@@ -150,6 +149,48 @@ const getShopData = async (shop_id) => {
         }
     } catch (err) {
        return null;
+    }
+};
+
+const getMultiShopData = async (shop_ids, isFilterUndefined = true) => {
+    console.log("get shopdata", { shop_ids });
+
+    try {
+        // Đọc file dữ liệu
+        const data = await fs.promises.readFile(linkShopFilePath, 'utf8');
+        
+        let shopData = [];
+        if (data) {
+            shopData = JSON.parse(data);
+        }
+
+        // Nếu shop_ids là 'ALL', trả về toàn bộ dữ liệu
+        if (shop_ids === "ALL") {
+            if (!isFilterUndefined)
+                return shopData;
+            else
+                return shopData.filter(shop => shop.shop_id && !shop.shop_id.startsWith("Undefined"));
+        }
+
+        // Tạo một mảng các shop_id từ chuỗi shop_ids (tách theo dấu phẩy)
+        const shopIdsArray = shop_ids.split(',').map(id => id.trim());
+
+        // Duyệt qua các shop_id và tìm kiếm trong shopData
+        const result = shopIdsArray.map(shop_id => {
+            const shopIndex = shopData.findIndex(shop => shop.shop_id === shop_id);
+            if (shopIndex !== -1) {
+                return shopData[shopIndex];  // Trả về shop nếu tìm thấy
+            } else {
+                console.log(`Shop with id ${shop_id} not found`);
+                return null;  // Nếu không tìm thấy, trả về null
+            }
+        }).filter(shop => shop !== null); // Lọc bỏ các null
+
+        return result;  // Trả về mảng các shop tìm được
+
+    } catch (err) {
+        console.error("Error reading file", err);
+        return null;
     }
 };
 
@@ -214,4 +255,4 @@ const deleteShop = (req, res) => {
     });
 };
 
-module.exports = {getShopData, getLinkShopData, addNewShop, updateShopData, deleteShop, updateShopInformation}
+module.exports = {getShopData, getLinkShopData, addNewShop, updateShopData, deleteShop, updateShopInformation, getMultiShopData}

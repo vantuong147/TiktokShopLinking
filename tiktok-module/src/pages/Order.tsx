@@ -1,155 +1,132 @@
-import React from 'react';
-import { Box, Heading, Text, Input, Select, Button, Table, Thead, Tbody, Tr, Th, Td, Checkbox, Flex, Stack, Spacer, IconButton, FormLabel, FormControl, BoxProps } from '@chakra-ui/react';
-import { SearchIcon, DownloadIcon } from '@chakra-ui/icons';
+import React, { useState, useEffect } from 'react';
+import { Box } from '@chakra-ui/react';
+import OrderHeader from '../components/Order/OrderHeader';
+import OrderFilterForm from '../components/Order/OrderFilterForm';
+import OrderStatusFilter from '../components/Order/OrderStatusFilter';
+import OrderTable from '../components/Order/OrderTable';
+
+const API_URL = 'http://localhost:8000/api_handler';
 
 const Order: React.FC = () => {
+  const [orderData, setOrderData] = useState<any[]>([]); 
+  const [loading, setLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const requestId = 'get_order_list';
+    const fetchOrderData = async () => {
+      try {
+        const response = await fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ requestId }),
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch data');
+        }
+
+        const data = await response.json();
+        setOrderData(data.data);
+        setLoading(false);
+      } catch (err) {
+        setError('Error fetching data');
+        setLoading(false);
+      }
+    };
+
+    fetchOrderData();
+  }, []);
+
+  const exportToCSV = () => {
+    if (orderData.length === 0) {
+      alert('No data available for export');
+      return;
+    }
+  
+    // Định nghĩa tiêu đề các cột cần export dựa trên các thuộc tính của order
+    const headers = [
+      'External ID', 'Order ID', 'Shipping Method', 'Name', 'Email', 'Phone', 
+      'Country', 'Region', 'Address 1', 'Address 2', 'Address 3', 
+      'City', 'ZIP', 'Quantity', 'Variant ID', 'Tracking', 
+      'Link Label', 'Size', 'Color', 'Shirt Type', 'Is Rush', 
+      'Font Design Link', 'Back Design Link', 'Mockup Front Link', 'Mockup Back Link', 'extraDesign1', 'mockupExtra1','extraDesign2', 'mockupExtra2','extraDesign3', 'mockupExtra3'
+    ];
+  
+    // Chuẩn bị dữ liệu cho các cột cần export
+    const csvContent = orderData.map((order) => [
+      order.external_id || '',
+      order.order_id || '',
+      order.shipping_method || '',
+      order.name || '',
+      order.email || '',
+      order.phone || '',
+      order.country || '',
+      order.region || '',
+      order.address_line_1 || '',
+      order.address_line_2 || '',
+      order.address_line_3 || '',
+      order.city || '',
+      order.zip || '',
+      order.quantity || '',
+      order.variant_id || '',
+      order.tracking || '',
+      order.link_label || '',
+      order.size || '',
+      order.color || '',
+      order.shirt_type || '',
+      order.is_rush ? 'Yes' : 'No', // Boolean field converted to Yes/No
+      order.font_design || '',
+      order.back_design || '',
+      order.mockup_front || '',
+      order.mockup_back || '',
+      order.extra_design_1 || '',
+      order.mocku_extra_1 || '',
+      order.extra_design_2 || '',
+      order.mocku_extra_2 || '',
+      order.extra_design_3 || '',
+      order.mocku_extra_3 || ''
+    ]);
+  
+    // Kết hợp headers và dữ liệu thành chuỗi CSV
+    const csvRows = [
+      headers.join(','), 
+      ...csvContent.map(row => row.map(value => `"${value}"`).join(','))
+    ];
+    const csvString = csvRows.join('\n');
+  
+    // Tạo Blob từ chuỗi CSV
+    const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+  
+    // Tạo thẻ <a> để download file
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'orders_full.csv';
+    link.click();
+  
+    // Giải phóng URL Blob
+    URL.revokeObjectURL(url);
+  };
+  
+  
+
+  if (loading) {
+    return <div style={{ textAlign: 'center' }}>Loading Orders...</div>;
+  }
+
+  if (error) {
+    return <div style={{ textAlign: 'center', color: 'red' }}>{error}</div>;
+  }
+
   return (
     <Box p={4} bg="white" rounded="lg" shadow="md">
-      {/* Tiêu đề */}
-      <Flex alignItems="center" mb={4}>
-        <Heading size="lg">Tiktok Shop Order</Heading>
-        <Spacer />
-        <Button colorScheme="blue" leftIcon={<DownloadIcon />}>
-          Export
-        </Button>
-      </Flex>
-
-      {/* Form nhập liệu để filter và tìm kiếm */}
-      <Box mb={6} p={4} bg="gray.50" rounded="lg" shadow="sm">
-        <Stack direction={['column', 'row']} spacing={4} alignItems="center">
-          <FormControl>
-            <FormLabel>OrderID</FormLabel>
-            <Input placeholder="Enter Order ID" />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Product Name</FormLabel>
-            <Input placeholder="Enter Product Name" />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Fullfillment Status</FormLabel>
-            <Select placeholder="Select status">
-              <option value="unpaid">Unpaid</option>
-              <option value="on-hold">On Hold</option>
-              <option value="awaiting-shipment">Awaiting Shipment</option>
-              <option value="awaiting-collection">Awaiting Collection</option>
-              <option value="in-transit">In Transit</option>
-              <option value="delivered">Delivered</option>
-              <option value="completed">Completed</option>
-              <option value="cancelled">Cancelled</option>
-            </Select>
-          </FormControl>
-          <FormControl>
-            <FormLabel>Store Tiktok</FormLabel>
-            <Input placeholder="Enter Store Tiktok" />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Product SKU</FormLabel>
-            <Input placeholder="Enter Product SKU" />
-          </FormControl>
-          <FormControl>
-            <FormLabel>Page Size</FormLabel>
-            <Select placeholder="Select page size">
-              <option value="10">10</option>
-              <option value="20">20</option>
-              <option value="50">50</option>
-            </Select>
-          </FormControl>
-          <FormControl>
-            <FormLabel>From Date</FormLabel>
-            <Input type="datetime-local" />
-          </FormControl>
-          <FormControl>
-            <FormLabel>End Date</FormLabel>
-            <Input type="datetime-local" />
-          </FormControl>
-          <Button leftIcon={<SearchIcon />} colorScheme="blue">
-            Search
-          </Button>
-        </Stack>
-      </Box>
-
-      {/* Khu vực filter */}
-      <Flex mb={4}>
-        <Stack direction="row" spacing={2}>
-          <Button colorScheme="teal">All</Button>
-          <Button colorScheme="orange">Unpaid</Button>
-          <Button colorScheme="yellow">On Hold</Button>
-          <Button colorScheme="blue">Awaiting Shipment</Button>
-          <Button colorScheme="red">Awaiting Collection</Button>
-          <Button colorScheme="green">In Transit</Button>
-          <Button colorScheme="purple">Delivered</Button>
-          <Button colorScheme="gray">Completed</Button>
-          <Button colorScheme="pink">Cancelled</Button>
-        </Stack>
-        <Spacer />
-        <Button colorScheme="blue" leftIcon={<DownloadIcon />}>
-          Export
-        </Button>
-      </Flex>
-
-      {/* Bảng hiển thị Order */}
-      <Box overflowX="auto" maxWidth="100%">
-        <Table variant="simple">
-          <Thead bg="blue.100">
-            <Tr>
-              <Th width="5%">
-                <Checkbox />
-              </Th>
-              <Th width="5%">#</Th>
-              <Th width="15%">Time/Store</Th>
-              <Th width="15%">Order</Th>
-              <Th width="10%">Mockup</Th>
-              <Th width="10%">DesignUrl</Th>
-              <Th width="15%">Product</Th>
-              <Th width="10%">TotalPrice</Th>
-              <Th width="5%">Quantity</Th>
-              <Th width="10%">Fullfillment</Th>
-              <Th width="10%">Actions</Th>
-            </Tr>
-          </Thead>
-          <Tbody>
-            {/* Dữ liệu mẫu */}
-            {Array.from({ length: 5 }).map((_, index) => (
-              <Tr key={index}>
-                <Td>
-                  <Checkbox />
-                </Td>
-                <Td>{index + 1}</Td>
-                <Td>Time/Store #{index + 1}</Td>
-                <Td>Order #{index + 1}</Td>
-                <Td>
-                  <Button size="sm" colorScheme="teal">
-                    View Mockup
-                  </Button>
-                </Td>
-                <Td>
-                  <Button size="sm" colorScheme="blue">
-                    View Design URL
-                  </Button>
-                </Td>
-                <Td>Product #{index + 1}</Td>
-                <Td>$ {Math.floor(Math.random() * 1000)}</Td>
-                <Td>{Math.floor(Math.random() * 10)}</Td>
-                <Td>
-                  {index % 2 === 0 ? (
-                    <Text color="green.500">Fulfilled</Text>
-                  ) : (
-                    <Text color="red.500">Pending</Text>
-                  )}
-                </Td>
-                <Td>
-                  <Button size="sm" colorScheme="yellow">
-                    Edit
-                  </Button>
-                  <Button size="sm" colorScheme="red" ml={2}>
-                    Remove
-                  </Button>
-                </Td>
-              </Tr>
-            ))}
-          </Tbody>
-        </Table>
-      </Box>
+      <OrderHeader onExportClick={exportToCSV} />
+      <OrderFilterForm />
+      <OrderStatusFilter />
+      <OrderTable orderData={orderData} />
     </Box>
   );
 };
